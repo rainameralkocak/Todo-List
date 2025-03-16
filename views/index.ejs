@@ -10,14 +10,17 @@
     <div class="container mt-5">
         <h2 class="text-center">To-Do List</h2>
 
-        <!-- Görev Ekleme  -->
+        <!-- Görev Ekleme -->
         <form action="/todos" method="POST" class="mt-4">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input type="text" name="task" class="form-control" placeholder="Görev adı" required>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <input type="text" name="description" class="form-control" placeholder="Açıklama" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="deadline" class="form-control" required> <!-- Yeni eklendi -->
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-success w-100">Ekle</button>
@@ -31,6 +34,7 @@
                 <tr>
                     <th>Görev Adı</th>
                     <th>Açıklama</th>
+                    <th>Deadline</th> <!-- Yeni eklendi -->
                     <th>Durum</th>
                 </tr>
             </thead>
@@ -39,19 +43,20 @@
                     <tr>
                         <td><%= todo.task %></td>
                         <td><%= todo.description %></td>
+                        <td><%= new Date(todo.deadline).toLocaleDateString() %></td> <!-- Yeni eklendi -->
                         <td>
                             <div class="d-flex w-50 justify-content-between text-center">
                                 <% if (todo.completed) { %>
-                                    <span class="badge bg-success badge-sm w-75 text-center d-flex justify-content-center align-items-center fw-bold ">Tamamlandı</span>
+                                    <span class="badge bg-success badge-sm w-75 text-center d-flex justify-content-center align-items-center fw-bold">Tamamlandı</span>
                                 <% } else { %>
                                     <span class="badge bg-warning badge-sm w-75 text-center d-flex justify-content-center align-items-center fw-bold">Yapılacak</span>
                                 <% } %>
                                 <form action="/todos/<%= todo.id %>/edit" method="GET" class="w-100">
-                                    <button type="submit" class="btn btn-primary btn-sm w-75  fw-bold">Düzenle</button>
+                                    <button type="submit" class="btn btn-primary btn-sm w-75 fw-bold">Düzenle</button>
                                 </form>
                                 <!-- Sil butonu -->
                                 <form action="/todos/<%= todo.id %>/delete" method="POST" class="w-100">
-                                    <button type="submit" class="btn btn-danger btn-sm w-75 fw-bold ">Sil</button>
+                                    <button type="submit" class="btn btn-danger btn-sm w-75 fw-bold">Sil</button>
                                 </form>
                             </div>
                         </td>

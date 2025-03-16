@@ -6,13 +6,13 @@ const fs = require("fs");
 const app = express();
 const PORT = 3000;
 
-// JSON dosyasından görevleri okuma ve yazma yardımcı fonksiyonu
+// JSON dosyasının yolu
 const dbPath = path.join(__dirname, "db.json");
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(express.json());  // JSON veri işleme için
+app.use(express.json());  
 
 // View Engine
 app.set("view engine", "ejs");
@@ -20,7 +20,7 @@ app.set("view engine", "ejs");
 // JSON dosyasını okuma fonksiyonu
 function readTodos() {
     const data = fs.readFileSync(dbPath, "utf8");
-    return JSON.parse(data).todos;
+    return JSON.parse(data).todos.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 }
 
 // JSON dosyasına yazma fonksiyonu
@@ -31,77 +31,77 @@ function writeTodos(todos) {
 
 // Ana Sayfa (Tüm görevleri listeliyoruz)
 app.get("/", (req, res) => {
-    const todos = readTodos(); // JSON dosyasındaki görevleri al
+    const todos = readTodos(); 
     res.render("index", { todos: todos });
 });
 
 // Görev Ekleme (POST)
 app.post("/todos", (req, res) => {
-    const { task, description } = req.body;
+    const { task, description, deadline } = req.body;
 
-    if (!task || !description) {
-        return res.status(400).json({ message: "Görev adı ve açıklama gereklidir" });
+    if (!task || !description || !deadline) {
+        return res.status(400).json({ message: "Görev adı, açıklama ve deadline gereklidir." });
     }
 
-    const todos = readTodos(); // JSON dosyasındaki görevleri al
+    const todos = readTodos();
     const newTodo = {
         id: todos.length + 1,
-        task: task,
-        description: description,
+        task,
+        description,
+        deadline,
         completed: false
     };
 
-    todos.push(newTodo); // Yeni görevi ekle
-    writeTodos(todos);   // JSON dosyasına yaz
+    todos.push(newTodo);
+    writeTodos(todos);
 
-    res.redirect("/"); // Ana sayfayı yeniden yükle
+    res.redirect("/");
 });
 
 // Görev Silme (POST)
 app.post("/todos/:id/delete", (req, res) => {
     const todoId = parseInt(req.params.id);
-    let todos = readTodos(); // JSON dosyasındaki görevleri al
-    todos = todos.filter(todo => todo.id !== todoId); // Silinen görevi kaldır
+    let todos = readTodos().filter(todo => todo.id !== todoId);
 
-    writeTodos(todos); // Güncel listeyi JSON dosyasına yaz
-    res.redirect("/"); // Ana sayfayı yeniden yükle
+    writeTodos(todos);
+    res.redirect("/");
 });
 
 // Görev Düzenleme (GET)
 app.get("/todos/:id/edit", (req, res) => {
     const todoId = parseInt(req.params.id);
-    const todos = readTodos(); // JSON dosyasındaki görevleri al
+    const todos = readTodos();
     const todo = todos.find(todo => todo.id === todoId);
 
     if (!todo) {
         return res.status(404).send("Görev bulunamadı");
     }
 
-    res.render("edit", { todo: todo }); // Düzenleme formunu gönder
+    res.render("edit", { todo: todo });
 });
 
-// Görev Düzenleme (POST)
+// Görev Güncelleme (POST)
 app.post("/todos/:id/edit", (req, res) => {
     const todoId = parseInt(req.params.id);
-    const { task, description, completed } = req.body;
+    const { task, description, deadline, completed } = req.body;
 
-    const todos = readTodos(); // JSON dosyasındaki görevleri al
+    const todos = readTodos();
     const todoIndex = todos.findIndex(todo => todo.id === todoId);
 
     if (todoIndex === -1) {
         return res.status(404).send("Görev bulunamadı");
     }
 
-    // Görevi güncelle
     todos[todoIndex] = {
         id: todoId,
-        task: task,
-        description: description,
+        task,
+        description,
+        deadline,
         completed: completed === 'on'
     };
 
-    writeTodos(todos); // Güncel listeyi JSON dosyasına yaz
-    res.redirect("/"); // Ana sayfayı yeniden yükle
+    writeTodos(todos);
+    res.redirect("/");
 });
 
 // Sunucuyu başlat

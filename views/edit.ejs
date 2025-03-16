@@ -20,6 +20,10 @@
                 <input type="text" name="description" class="form-control" value="<%= todo.description %>" required>
             </div>
             <div class="mb-3">
+                <label for="deadline" class="form-label">Son Tarih (Deadline)</label>
+                <input type="date" name="deadline" class="form-control" value="<%= new Date(todo.deadline).toISOString().split('T')[0] %>" required> <!-- Yeni eklendi -->
+            </div>
+            <div class="mb-3">
                 <label for="completed" class="form-label">Tamamlandı</label>
                 <input type="checkbox" name="completed" <%= todo.completed ? 'checked' : '' %> >
             </div>
